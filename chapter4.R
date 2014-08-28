@@ -21,6 +21,7 @@ ggplot(gather(Auto, variable, value, cylinders:origin),
 #' Possibly year and origin, but there's a lot of overlap there.
 #'
 
+f = mpg01 ~ cylinders + displacement + horsepower + weight
 
 #' 
 #' ## c) Train/test set
@@ -35,8 +36,9 @@ test  <- inds[(split_point+1):nrow(Auto)]
 
 #' ## d) LDA
 #'
-mpg_lda <- lda(mpg01 ~ cylinders + displacement + horsepower + weight + year,
-               data=Auto, subset=train)
+mpg_lda <- lda(f, data=Auto, subset=train)
+
+print(mpg_lda)
 
 mean(predict(mpg_lda)$class == Auto[train, "mpg01"])
 mpg_lda_class <- predict(mpg_lda, Auto[test, ])$class
@@ -44,8 +46,8 @@ mean(mpg_lda_class == Auto[test, "mpg01"])
 
 #' ## e) QDA
 #'
-mpg_qda <- qda(mpg01 ~ cylinders + displacement + horsepower + weight + year,
-               data=Auto, subset=train)
+mpg_qda <- qda(f, data=Auto, subset=train)
+print(mpg_qda)
 
 mean(predict(mpg_qda)$class == Auto[train, "mpg01"])
 mpg_qda_class <- predict(mpg_qda, Auto[test, ])$class
@@ -54,15 +56,15 @@ mean(mpg_qda_class == Auto[test, "mpg01"])
 
 #' ## f) Logistic regression
 #'
-mpg_glm <- glm(mpg01 ~ cylinders + displacement + horsepower + weight + year,
-               data=Auto, subset=train, family="binomial")
+mpg_glm <- glm(f, data=Auto, subset=train, family="binomial")
+summary(mpg_glm)
 
 mean((predict(mpg_glm)>0)+0 == Auto[train, "mpg01"])
 mpg_glm_class <- (predict(mpg_glm, Auto[test, ]) > 0) + 0
 mean(mpg_glm_class == Auto[test, "mpg01"])
 
 #' ## g) KNN
-cols <- c("cylinders", "displacement", "horsepower", "weight", "year")
+cols <- c("cylinders", "displacement", "horsepower", "weight")
 train.x <- Auto[train, cols]
 train.mpg01 <- Auto[train, "mpg01"]
 test.x <- Auto[test, cols]
